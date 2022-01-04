@@ -239,6 +239,9 @@ message BikeShareStationInfo {
   oneof has_return_cost {
     float return_cost = 7;
   }
+  oneof has_osm_node_id {
+    uint64 osm_node_id = 8;
+  }
 }
 
 message TransitPlatformInfo {
