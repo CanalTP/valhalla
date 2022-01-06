@@ -1430,6 +1430,8 @@ public:
       n.set_type(NodeType::kBikeShare);
       valhalla::BikeShareStationInfo bss_info;
 
+      bss_info.set_osm_node_id(osmid);
+
       for (auto& key_value : *results) {
         if (key_value.first == "name") {
           bss_info.set_name(key_value.second);
