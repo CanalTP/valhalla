@@ -85,6 +85,7 @@ struct AvoidEdge {
 struct Cost {
   float cost;
   float secs;
+  float walking;
   // TODO:
   // float dist;
   // float consumption;
@@ -92,7 +93,7 @@ struct Cost {
   /**
    * Default constructor
    */
-  Cost() : cost(0.0f), secs(0.0f) {
+  Cost() : cost(0.0f), secs(0.0f), walking(0.0f) {
   }
 
   /**
@@ -100,7 +101,8 @@ struct Cost {
    * @param  c  Cost (units defined by the costing model)
    * @param  s  Time in seconds.
    */
-  Cost(const float c, const float s) : cost(c), secs(s) {
+  Cost(const float c, const float s) : cost(c), secs(s),walking(0.0f) {
+
   }
 
   /**

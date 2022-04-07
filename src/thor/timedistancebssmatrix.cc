@@ -117,6 +117,13 @@ void TimeDistanceBSSMatrix::ExpandForward(GraphReader& graphreader,
 
     // Compute the cost to the end of this edge
     Cost newcost = pred.cost() + normalized_edge_cost + transition_cost;
+    if (mode == travel_mode_t::kPedestrian) {
+        	newcost.walking += normalized_edge_cost.secs;
+        }
+
+    	if (newcost.walking > 900) {
+    		continue;
+    	}
 
     uint32_t distance = pred.path_distance() + directededge->length();
 
@@ -311,6 +318,14 @@ void TimeDistanceBSSMatrix::ExpandReverse(GraphReader& graphreader,
 
     // Compute the cost to the end of this edge
     Cost newcost = pred.cost() + normalized_edge_cost + transition_cost;
+
+    if (mode == travel_mode_t::kPedestrian) {
+        	newcost.walking += normalized_edge_cost.secs;
+        }
+
+    	if (newcost.walking > 900) {
+    		continue;
+    	}
 
     uint32_t distance = pred.path_distance() + directededge->length();
 

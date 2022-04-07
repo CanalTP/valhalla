@@ -166,6 +166,14 @@ void AStarBSSAlgorithm::ExpandForward(GraphReader& graphreader,
     // Compute the cost to the end of this edge
     Cost newcost = pred.cost() + normalized_edge_cost + transition_cost;
 
+    if (mode == travel_mode_t::kPedestrian) {
+    	newcost.walking += normalized_edge_cost.secs;
+    }
+
+	if (newcost.walking > 900) {
+		continue;
+	}
+
     // If this edge is a destination, subtract the partial/remainder cost
     // (cost from the dest. location to the end of the edge).
     auto p = mode != travel_mode_t::kPedestrian ? destinations_.end() : destinations_.find(edgeid);
