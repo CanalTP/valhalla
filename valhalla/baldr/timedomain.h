@@ -2,7 +2,6 @@
 #define VALHALLA_BALDR_TIMEDOMAIN_H_
 
 #include <valhalla/baldr/graphconstants.h>
-#include <vector>
 
 namespace valhalla {
 namespace baldr {
@@ -93,8 +92,8 @@ public:
 
   /**
    * Set the day when this time domain starts
-   * @param beging_day_dow   the begin_day_dow.
-   *                         begin_day_dow = begin day or dow enum (i.e. 1st Sunday in some month)
+   * @param begin_day_dow   the begin_day_dow.
+   *                        begin_day_dow = begin day or dow enum (i.e. 1st Sunday in some month)
    */
   void set_begin_day_dow(const uint8_t begin_day_dow) {
     if (daterange.type == kYMD && begin_day_dow > kMaxDateRangeDay) {

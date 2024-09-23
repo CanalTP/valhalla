@@ -172,7 +172,7 @@ const BaseCostingOptionsConfig kBaseCostOptsConfig = GetBaseCostOptsConfig();
 // The recipe from DIN 33466 goes: For every 300m ascent/500m descent, add
 // one hour to bucket H. For every 4km distance, add one hour to bucket D.
 // Now add half of the value in the smaller bucket to the bigger bucket
-// to get the estimated duration. The method is recommeded by the DAV and
+// to get the estimated duration. The method is recommended by the DAV and
 // the OEAV for casual hiking.
 //
 // For comparison, value researched by the Mountain Tactical Institute
@@ -187,14 +187,14 @@ const BaseCostingOptionsConfig kBaseCostOptsConfig = GetBaseCostOptsConfig();
 // intermediate hikers. This will bring the uphill values quite close to the
 // ones from the exponential while still keeping downhill speed below flat speed.
 //
-// For negative angles(downhill), according to the DIN 33466, the speed decrease 
-// rapidly as it goes steeper, which could be true for moutain hikers because of 
-// the unpaved paths. However, we found it's against common sense that the speed 
-// factor goes under 1.0 (walk speed on a flat terrain) on a slight downhill slope, 
-// especially for city walkers. Thus, a modified Tobler's function is used here to 
-// correct the factor for negative angles. Hence, the walk speed increase slightly 
-// (faster than on a flat terrain) when the angle is between 0% and -5%, then 
-// decrease as shown by DIN 33466. 
+// For negative angles (downhill), as per DIN 33466, speed decreases rapidly
+// as the slope becomes steeper. This behavior may hold true for mountain hikers
+// due to unpaved paths. However, it contradicts common sense for city walkers
+// when the speed factor drops below 1.0 (the walking speed on flat terrain)
+// even on a slight downhill slope. To address this, we employ a modified Tobler's
+// function to correct the factor for negative angles. Consequently, walk speed
+// slightly increases (faster than on flat terrain) when the angle is between
+// 0% and -5%, and then decreases as indicated by DIN 33466.
 // see https://gist.github.com/xlqian/0b25c8db6f45fb2c8bf68494e1ea54f1
 
 constexpr float kGradeBasedSpeedFactor[] = {
@@ -588,22 +588,17 @@ PedestrianCost::PedestrianCost(const Costing& costing)
   // Get the pedestrian type - enter as string and convert to enum
   const std::string& type = costing_options.transport_type();
   if (type == "wheelchair") {
+    // TODO(nils): this needs to control much more in costing, e.g.
+    // we could add more AccessRestrictions for curb height or so
     type_ = PedestrianType::kWheelchair;
-  } else if (type == "segway") {
-    type_ = PedestrianType::kSegway;
-  } else {
-    type_ = PedestrianType::kFoot;
-  }
-
-  // Set type specific defaults, override with URL inputs
-  if (type_ == PedestrianType::kWheelchair) {
     access_mask_ = kWheelchairAccess;
     minimal_allowed_surface_ = Surface::kCompacted;
   } else {
-    // Assume type = foot
+    type_ = type == "blind" ? PedestrianType::kBlind : PedestrianType::kFoot;
     access_mask_ = kPedestrianAccess;
     minimal_allowed_surface_ = Surface::kPath;
   }
+
   max_distance_ = costing_options.max_distance();
   speed_ = costing_options.walking_speed();
   step_penalty_ = costing_options.step_penalty();
@@ -692,8 +687,8 @@ bool PedestrianCost::AllowedReverse(const baldr::DirectedEdge* edge,
     return false;
   }
 
-  return DynamicCost::EvaluateRestrictions(access_mask_, edge, false, tile, opp_edgeid, current_time,
-                                           tz_index, restriction_idx);
+  return DynamicCost::EvaluateRestrictions(access_mask_, opp_edge, false, tile, opp_edgeid,
+                                           current_time, tz_index, restriction_idx);
 }
 
 // Returns the cost to traverse the edge and an estimate of the actual time
@@ -893,7 +888,8 @@ TestPedestrianCost* make_pedestriancost_from_json(const std::string& property,
                                                   float testVal,
                                                   const std::string& /*type*/) {
   std::stringstream ss;
-  ss << R"({"costing_options":{"pedestrian":{")" << property << R"(":)" << testVal << "}}}";
+  ss << R"({"costing": "pedestrian", "costing_options":{"pedestrian":{")" << property << R"(":)"
+     << testVal << "}}}";
   Api request;
   ParseApi(ss.str(), valhalla::Options::route, request);
   return new TestPedestrianCost(request.options().costings().find(Costing::pedestrian)->second);
